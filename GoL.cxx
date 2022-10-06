@@ -2,18 +2,19 @@
 #include <iostream>
 #include <stdlib.h>
 #include <array>
+#include <vector>
 using namespace std;
 
-int* gridInit(int nrow, int mcol){
-    int grid[nrow][mcol];
-    memset(grid, 0, sizeof(grid));
+vector<vector<int> > gridInit(int nrow, int mcol){
+    vector<vector<int> > grid(nrow, vector<int>(mcol, 0));
+    //fill(grid.begin(), grid.end(), 0);
     for (int i = 0; i < nrow; i++){
         for (int j = 0; j < mcol; j++){
             cout << grid[i][j] << ", ";
         }
         cout << endl;
     }
-    return 0;
+    return grid;
 }
 
 int main(){
