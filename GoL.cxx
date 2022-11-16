@@ -3,11 +3,17 @@
 #include <stdlib.h>
 #include <array>
 #include <vector>
+#include <GL/freeglut.h>
+#include <GLUT/glut.h>
 using namespace std;
 
 /*this function initializes the grid as a multidimensional
 vector, and then returns it. The goal will be to initialize,
 populate, and then compute.*/
+
+int WIDTH = 800;
+int HEIGHT = 600;
+
 
 vector<vector<int> > gridInit(int nrow, int mcol){
     vector<vector<int> > grid(nrow, vector<int>(mcol, 0));
@@ -30,12 +36,34 @@ void printGrid(vector<vector<int> > grid){
     }
 }
 
-void runGame(vector<vector<int> > grid){
+vector<vector<int> > grid = gridInit(HEIGHT, WIDTH);
+
+void init(){
+    gluOrtho2D(0, WIDTH, 0, HEIGHT);
+}
+
+void stepGame(vector<vector<int> > grid){
     
 }
 
-int main(){
-    vector<vector<int> > grid = gridInit(10, 10);
-    printGrid(grid);
+void readGrid(vector<vector<int> > grid){
+
+}
+
+void display(){
+    glClear(GL_COLOR_BUFFER_BIT);
+    stepGame(grid);
+    readGrid(grid);
+    glFlush();
+    glFinish();
+}
+
+
+int main(int argc, char* argv[]){
+    glutInit(&argc, argv);
+    glutInitWindowSize(WIDTH, HEIGHT);
+    glutCreateWindow("Conway's Game of Life");
+    init();
+    //printGrid(grid);
     return 0;
 }
