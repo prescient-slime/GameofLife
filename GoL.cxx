@@ -13,14 +13,29 @@ vector<vector<int> > gridInit(int nrow, int mcol){
     vector<vector<int> > grid(nrow, vector<int>(mcol, 0));
     for (int i = 0; i < nrow; i++){
         for (int j = 0; j < mcol; j++){
-            cout << grid[i][j] << ", ";
+            int n = rand() & 1;
+            grid[i][j] = n;
         }
-        cout << endl;
+        
     }
     return grid;
 }
 
+void printGrid(vector<vector<int> > grid){
+    for (int i = 0; i < grid.size(); i++){
+        for (int j = 0; j < grid[i].size(); j++){
+            cout << grid[i][j] << ", ";
+        }
+        cout << endl;
+    }
+}
+
+void runGame(vector<vector<int> > grid){
+    
+}
+
 int main(){
-    gridInit(10, 10);
+    vector<vector<int> > grid = gridInit(10, 10);
+    printGrid(grid);
     return 0;
 }
