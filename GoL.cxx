@@ -36,13 +36,13 @@ void printGrid(vector<vector<int> > grid){
     }
 }
 
-vector<vector<int> > grid = gridInit(HEIGHT, WIDTH);
+vector<vector<int> > game = gridInit(HEIGHT, WIDTH);
 
 void init(){
     gluOrtho2D(0, WIDTH, 0, HEIGHT);
 }
 
-void stepGame(vector<vector<int> > grid){
+void stepGame(vector<vector<int> > &grid){
     
 }
 
@@ -52,8 +52,8 @@ void readGrid(vector<vector<int> > grid){
 
 void display(){
     glClear(GL_COLOR_BUFFER_BIT);
-    stepGame(grid);
-    readGrid(grid);
+    stepGame(game);
+    readGrid(game);
     glFlush();
     glFinish();
 }
