@@ -28,23 +28,18 @@ vector<vector<int> > gridInit(int nrow, int mcol){
 }
 
 int getNeighbors(vector<vector<int> > grid, int row, int col){
-    int topn [3]= {grid[row - 1][col - 1], grid[row - 1][col], grid[row - 1][col + 1]};
-    int lr [2] = {grid[row][col - 1], grid[row][col + 1]};
-    int botn [3] = {grid[row + 1][col - 1], grid[row + 1][col], grid[row + 1][col + 1]};
     int neighbors = 0;
-    for (int i = 0; i < 3; i++){
-        if (topn[i] == 1){
-            neighbors++;
-        }
-        if (botn[i] == 1){
-            neighbors++;
-        }
+    if (row < HEIGHT && col < WIDTH && row > 0 && col > 0){
+        neighbors += grid.at(row - 1).at(col - 1);
+        neighbors += grid.at(row - 1).at(col);
+        neighbors += grid.at(row - 1).at(col + 1);
+        neighbors += grid.at(row).at(col - 1);
+        neighbors += grid.at(row).at(col + 1);
+        neighbors += grid.at(row + 1).at(col - 1);
+        neighbors += grid.at(row + 1).at(col);
+        neighbors += grid.at(row + 1).at(col + 1);
     }
-    for (int i = 0; i < 2; i++){
-        if (lr[i] == 1){
-            neighbors++;
-        }
-    }
+    
     return neighbors;
 }
 
@@ -69,9 +64,15 @@ void stepGame(vector<vector<int> > &grid){
         for (int j = 0; j < grid[i].size(); j++){
             //live cell rules
             if (grid[i][j] == 1){
-                if (getNeighbors(grid, i, j) < 2 || getNeighbors(grid, i, j) > 3){
+                try{
+                    if (getNeighbors(grid, i, j) < 2 || getNeighbors(grid, i, j) > 3){
                     grid[i][j] = 0;
+                    }
                 }
+                catch(const std::out_of_range & ex){
+                    cout << "out of range exception caught" << ex.what();
+                }
+                
             }
             // dead cell rules
             if (grid[i][j] == 0){
@@ -102,6 +103,11 @@ int main(int argc, char* argv[]){
     glutCreateWindow("Conway's Game of Life");
     init();
     glutDisplayFunc(display);
-    //printGrid(grid);
+    cout << "initial state: " << endl;
+    printGrid(game);
+    cout << "stepping game: " << endl;
+    stepGame(game);
+    cout << "game stepped: " << endl;
+    printGrid(game);
     return 0;
 }
