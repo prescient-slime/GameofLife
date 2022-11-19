@@ -5,8 +5,8 @@
 #include <GLUT/glut.h>
 
 
-#define WIDTH 1366
-#define HEIGHT 768
+#define WIDTH 800
+#define HEIGHT 600
 #define WAIT 15000
 
 bool initialized = false;
@@ -25,10 +25,22 @@ void initGame(bool(&grid)[HEIGHT][WIDTH]){
     } 
 }
 
+void restart(int key, int a, int b){
+    if (key == 'r'){
+        initialized = false;
+        initGame(board);
+    }
+    if (key == 'q'){
+        int win = glutGetWindow();
+        glutDestroyWindow(win);
+        exit(0);
+    }
+}
 
 
 void draw_point(int x, int y, int size){
-    glColor3f(1, 1, 1);
+    srand(time(NULL));
+    glColor3ub(61, 236, 242);
     glPointSize(size);
     glBegin(GL_POINTS);
         glVertex2f(x, y);
@@ -39,11 +51,7 @@ void drawGame(bool(grid)[HEIGHT][WIDTH]){
     for (int i = 0; i < HEIGHT; i++){
         for (int j = 0; j < WIDTH; j++){
             if (grid[i][j]){
-                //draw_point(j, i, 1);
-                glColor3f(1, 1, 1);
-                glBegin(GL_POINTS);
-                    glVertex2i(j, i);
-                glEnd();
+                draw_point(j, i, 1);
             }
         }
     }
@@ -101,7 +109,6 @@ void stepGame(bool(&grid)[HEIGHT][WIDTH]){
 }
 
 void display(){
-    //printGame(board);
     glClear(GL_COLOR_BUFFER_BIT);
     drawGame(board);
     stepGame(board);
@@ -121,9 +128,9 @@ int main(int argc, char* argv[]){
     glutInitWindowSize(WIDTH, HEIGHT);
     glutCreateWindow("Conway's Game of Life");
     init();
-
+    
     glutDisplayFunc(display);
-
+    glutSpecialFunc(restart);
     glutMainLoop();
     initGame(board);
 
