@@ -7,10 +7,13 @@
 
 #define WIDTH 800
 #define HEIGHT 600
+#define WAIT 15000
 
 using namespace std;
 
+bool initialized = false;
 bool board [HEIGHT][WIDTH] = {false};
+
 
 void printGame(bool(grid)[HEIGHT][WIDTH]){
     for (int i = 0; i < HEIGHT; i++){
@@ -22,13 +25,16 @@ void printGame(bool(grid)[HEIGHT][WIDTH]){
 }
 
 void initGame(bool(&grid)[HEIGHT][WIDTH]){
-    srand( time(NULL) ); //Randomize seed initialization
-    for (int i = 0; i < HEIGHT; i++){
-        for (int j = 0; j < WIDTH; j++){
-            int randNum = rand() % 2; // Generate a random number between 0 and 1
-            grid[i][j] = (bool)randNum;
+    if (!initialized){
+        srand( time(NULL) ); //Randomize seed initialization
+        for (int i = 0; i < HEIGHT; i++){
+            for (int j = 0; j < WIDTH; j++){
+                int randNum = rand() & 1; // Generate a random number between 0 and 1
+                grid[i][j] = (bool)randNum;
+            }
         }
-    }
+        initialized = true;
+    } 
 }
 
 
@@ -56,6 +62,22 @@ void drawGame(bool(grid)[HEIGHT][WIDTH]){
     glutPostRedisplay();
 }
 
+int getNeighbors(bool(grid)[HEIGHT][WIDTH], int j, int i){
+    int n = 0;
+    
+    if (grid[(i - 1) % HEIGHT][(j - 1) % WIDTH]) n++;
+    if (grid[(i - 1) % HEIGHT][(j)]) n++;
+    if (grid[(i - 1) % HEIGHT][(j + 1) % WIDTH]) n++;
+    if (grid[(i)][(j - 1) % WIDTH]) n++;
+    if (grid[(i)][(j + 1) % WIDTH]) n++;
+    if (grid[(i + 1) % HEIGHT][(j - 1) % WIDTH]) n++;
+    if (grid[(i + 1) % HEIGHT][(j)]) n++;
+    if (grid[(i + 1) % HEIGHT][(j + 1) % WIDTH]) n++;
+
+    return n;
+    
+}
+
 
 void stepGame(bool(&grid)[HEIGHT][WIDTH]){
     int neighbors = 0;
@@ -63,65 +85,59 @@ void stepGame(bool(&grid)[HEIGHT][WIDTH]){
     bool swap [HEIGHT][WIDTH] = {false};
     for (int i = 0; i < HEIGHT; i++){
         for (int j = 0; j < WIDTH; j++){
-            neighbors = int(
-                        grid[(i - 1) % HEIGHT][(j - 1) % WIDTH] +
-                        grid[(i - 1) % HEIGHT][(j)] +
-                        grid[(i - 1) % HEIGHT][(j + 1) % WIDTH] +
-                        grid[(i)][(j - 1) % WIDTH] +
-                        grid[(i)][(j + 1) % WIDTH] +
-                        grid[(i + 1) % HEIGHT][(j - 1) % WIDTH] +
-                        grid[(i + 1) % HEIGHT][(j)] + 
-                        grid[(i + 1) % HEIGHT][(j + 1) % WIDTH]
-            );
-            if (grid[i][j]){
+            neighbors = getNeighbors(grid, j, i);
+            if (grid[i][j] == true){
                 if (neighbors > 3 || neighbors < 2){
                     swap[i][j] = false;
                 }
+                else{
+                    swap[i][j] = grid[i][j];
+                }
                 dead++;
             }
-            if (!grid[i][j]){
+            else if (grid[i][j] == false){
                 if (neighbors == 3){
                     swap[i][j] = true;
                 }
             }
+            
         }
     }
-    /*for (int i = 0; i < HEIGHT; i++){
-        for (int j = 0; j < WIDTH; j++){
-            grid[i][j] = swap[i][j];
-        }
-    }*/
+    
+    if (dead <= 0){
+        initialized = false;
+        initGame(swap);
+    }
     std::swap(swap, grid);
-    if (dead > 0){
-        initGame(grid);
-    }
+    
 }
 
 void display(){
+    printGame(board);
     glClear(GL_COLOR_BUFFER_BIT);
     drawGame(board);
     stepGame(board);
     
-    glFlush();
-    //glFinish();
+    glutSwapBuffers();
 }
 
 void init(){
-    gluOrtho2D(0, WIDTH, 0, HEIGHT);
+    
+    gluOrtho2D(0, WIDTH, HEIGHT, 0);
+    initGame(board);
 }
+
 
 int main(int argc, char* argv[]){
     glutInit(&argc, argv);
-    glutInitWindowSize(800, 600);
+    glutInitWindowSize(WIDTH, HEIGHT);
     glutCreateWindow("Conway's Game of Life");
     init();
 
     glutDisplayFunc(display);
 
-
-
     glutMainLoop();
-    
-    
+    initGame(board);
+
     return 0;
 }
