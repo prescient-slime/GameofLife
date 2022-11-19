@@ -5,24 +5,12 @@
 #include <GLUT/glut.h>
 
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 1366
+#define HEIGHT 768
 #define WAIT 15000
-
-using namespace std;
 
 bool initialized = false;
 bool board [HEIGHT][WIDTH] = {false};
-
-
-void printGame(bool(grid)[HEIGHT][WIDTH]){
-    for (int i = 0; i < HEIGHT; i++){
-        for (int j = 0; j < WIDTH; j++){
-            cout << grid[i][j];
-        }
-        cout << endl;
-    }
-}
 
 void initGame(bool(&grid)[HEIGHT][WIDTH]){
     if (!initialized){
@@ -113,7 +101,7 @@ void stepGame(bool(&grid)[HEIGHT][WIDTH]){
 }
 
 void display(){
-    printGame(board);
+    //printGame(board);
     glClear(GL_COLOR_BUFFER_BIT);
     drawGame(board);
     stepGame(board);
