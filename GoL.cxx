@@ -47,7 +47,7 @@ void draw_point(int x, int y, int size){
     glEnd();
 }
 
-void drawGame(bool(grid)[HEIGHT][WIDTH]){
+void drawGame(bool(&grid)[HEIGHT][WIDTH]){
     for (int i = 0; i < HEIGHT; i++){
         for (int j = 0; j < WIDTH; j++){
             if (grid[i][j]){
@@ -58,7 +58,7 @@ void drawGame(bool(grid)[HEIGHT][WIDTH]){
     glutPostRedisplay();
 }
 
-int getNeighbors(bool(grid)[HEIGHT][WIDTH], int j, int i){
+int getNeighbors(bool(&grid)[HEIGHT][WIDTH], int j, int i){
     int n = 0;
     
     if (grid[(i - 1) % HEIGHT][(j - 1) % WIDTH]) n++;
