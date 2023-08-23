@@ -3,23 +3,19 @@
 #include <time.h>
 #include <GL/freeglut.h>
 #include <GLUT/glut.h>
-
+#include <bitset>
 
 #define WIDTH 800
 #define HEIGHT 600
 #define WAIT 15000
 
 bool initialized = false;
-bool board [HEIGHT][WIDTH] = {false};
-
+std::bitset<HEIGHT * WIDTH> board;
+srand( time(NULL) ); //Randomize seed initialization
 void initGame(bool(&grid)[HEIGHT][WIDTH]){
     if (!initialized){
-        srand( time(NULL) ); //Randomize seed initialization
-        for (int i = 0; i < HEIGHT; i++){
-            for (int j = 0; j < WIDTH; j++){
-                int randNum = rand() & 1; // Generate a random number between 0 and 1
-                grid[i][j] = (bool)randNum;
-            }
+        for ( auto & bit : board ){
+          bit = rand() & 1;
         }
         initialized = true;
     } 
