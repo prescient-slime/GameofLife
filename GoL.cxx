@@ -9,6 +9,8 @@
 
 bool initialized = false;
 std::array<bool, SIZE> board;
+std::array<bool, SIZE> next;
+
 void initGame(std::array<bool, SIZE> &grid){
   if (!initialized){
     auto gen = std::bind(std::uniform_int_distribution<>(0,1),std::default_random_engine());
@@ -69,17 +71,21 @@ int getNeighbors(std::array<bool, SIZE>& grid, int position){
 
 
 void stepGame(std::array<bool, SIZE>& grid){
-    int neighbors = 0;
-    int dead = 0;
+    
+    short neighbors = 0;
     for (int i = 0; i < SIZE; i++){
         neighbors = getNeighbors(grid, i);
-            if (grid[i] && (neighbors > 3 || neighbors < 2)){
-                grid[i] = !grid[i];
+            if (grid[i] == true && (neighbors > 3 || neighbors < 2)){
+                next[i] = false;
             }
-            else if (!grid[i] && neighbors == 3){
-                grid[i] = !grid[i];
+            else if (grid[i] == false && neighbors == 3){
+                next[i] = true;
+            }
+            else{
+                next[i] = grid[i];
             }
         }
+        std::swap(grid, next);
     }
 
 void display(){
