@@ -1,112 +1,92 @@
-#include <iostream>
 #include <random>
-#include <time.h>
 #include <GL/freeglut.h>
 #include <GLUT/glut.h>
 
-
 #define WIDTH 800
 #define HEIGHT 600
+#define SIZE 480000
 #define WAIT 15000
 
 bool initialized = false;
-bool board [HEIGHT][WIDTH] = {false};
+std::array<bool, SIZE> board;
+std::array<bool, SIZE> next;
 
-void initGame(bool(&grid)[HEIGHT][WIDTH]){
-    if (!initialized){
-        srand( time(NULL) ); //Randomize seed initialization
-        for (int i = 0; i < HEIGHT; i++){
-            for (int j = 0; j < WIDTH; j++){
-                int randNum = rand() & 1; // Generate a random number between 0 and 1
-                grid[i][j] = (bool)randNum;
-            }
-        }
-        initialized = true;
-    } 
+void initGame(std::array<bool, SIZE> &grid){
+  if (!initialized){
+    auto gen = std::bind(std::uniform_int_distribution<>(0,1),std::default_random_engine());
+    for (int i = 0; i < SIZE; i++){
+      grid[i] = gen();
+    }
+    initialized = true;
+  } 
 }
 
 void restart(int key, int a, int b){
-    if (key == 'r'){
-        initialized = false;
-        initGame(board);
-    }
-    if (key == 'q'){
-        int win = glutGetWindow();
-        glutDestroyWindow(win);
-        exit(0);
-    }
+  if (key == 'r'){
+    initialized = false;
+    initGame(board);
+  }
+  if (key == 'q'){
+    int win = glutGetWindow();
+    glutDestroyWindow(win);
+    exit(0);
+  }
 }
 
 
-void draw_point(int x, int y, int size){
-    srand(time(NULL));
+void draw_point(int x, int y){
     glColor3ub(61, 236, 242);
-    glPointSize(size);
+    glPointSize(1);
     glBegin(GL_POINTS);
         glVertex2f(x, y);
     glEnd();
 }
 
-void drawGame(bool(&grid)[HEIGHT][WIDTH]){
-    for (int i = 0; i < HEIGHT; i++){
-        for (int j = 0; j < WIDTH; j++){
-            if (grid[i][j]){
-                draw_point(j, i, 1);
-            }
+void drawGame(std::array<bool, SIZE>& board){
+    for (int i = 0; i < SIZE; i++){
+        if (board[i]) {
+            int x = i % static_cast<int>(WIDTH);
+            int y = i / static_cast<int>(WIDTH);
+            draw_point(x, y);
         }
-    }
+    } 
     glutPostRedisplay();
 }
 
-int getNeighbors(bool(&grid)[HEIGHT][WIDTH], int j, int i){
+int getNeighbors(std::array<bool, SIZE>& grid, int position){
     int n = 0;
     
-    if (grid[(i - 1) % HEIGHT][(j - 1) % WIDTH]) n++;
-    if (grid[(i - 1) % HEIGHT][(j)]) n++;
-    if (grid[(i - 1) % HEIGHT][(j + 1) % WIDTH]) n++;
-    if (grid[(i)][(j - 1) % WIDTH]) n++;
-    if (grid[(i)][(j + 1) % WIDTH]) n++;
-    if (grid[(i + 1) % HEIGHT][(j - 1) % WIDTH]) n++;
-    if (grid[(i + 1) % HEIGHT][(j)]) n++;
-    if (grid[(i + 1) % HEIGHT][(j + 1) % WIDTH]) n++;
+    if (grid[(position - WIDTH) % static_cast<int>(grid.size())]) n++; // up
+    if (grid[(position - (WIDTH - 1)) % static_cast<int>(grid.size())]) n++; // up right
+    if (grid[(position + 1) % static_cast<int>(grid.size())]) n++; // right
+    if (grid[(position + (WIDTH + 1)) % static_cast<int>(grid.size())]) n++; // down right
+    if (grid[(position + WIDTH) % static_cast<int>(grid.size())]) n++; // down
+    if (grid[(position + (WIDTH - 1)) % static_cast<int>(grid.size())]) n++; // down left
+    if (grid[(position - 1) % static_cast<int>(grid.size())]) n++; // left
+    if (grid[(position - (WIDTH + 1)) % static_cast<int>(grid.size())]) n++; // up left
 
     return n;
     
 }
 
 
-void stepGame(bool(&grid)[HEIGHT][WIDTH]){
-    int neighbors = 0;
-    int dead = 0;
-    bool swap [HEIGHT][WIDTH] = {false};
-    for (int i = 0; i < HEIGHT; i++){
-        for (int j = 0; j < WIDTH; j++){
-            neighbors = getNeighbors(grid, j, i);
-            if (grid[i][j] == true){
-                if (neighbors > 3 || neighbors < 2){
-                    swap[i][j] = false;
-                }
-                else{
-                    swap[i][j] = grid[i][j];
-                }
-                dead++;
+void stepGame(std::array<bool, SIZE>& grid){
+    
+    short neighbors = 0;
+    for (int i = 0; i < SIZE; i++){
+        neighbors = getNeighbors(grid, i);
+            if (grid[i] == true && (neighbors > 3 || neighbors < 2)){
+                next[i] = false;
             }
-            else if (grid[i][j] == false){
-                if (neighbors == 3){
-                    swap[i][j] = true;
-                }
+            else if (grid[i] == false && neighbors == 3){
+                next[i] = true;
             }
-            
+            else{
+                next[i] = grid[i];
+            }
         }
+        std::swap(grid, next);
     }
-    
-    if (dead <= 0){
-        initialized = false;
-        initGame(swap);
-    }
-    std::swap(swap, grid);
-    
-}
 
 void display(){
     glClear(GL_COLOR_BUFFER_BIT);
